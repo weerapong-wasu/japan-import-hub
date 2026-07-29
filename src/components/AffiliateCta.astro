@@ -1,0 +1,23 @@
+---
+import { playAsiaLink, cdJapanLink } from '../site.config';
+
+interface Props {
+  store: 'playasia' | 'cdjapan';
+  heading: string;
+  text: string;
+  path: string;       // path on the store site, e.g. "/games" or a search URL
+  buttonLabel?: string;
+}
+
+const { store, heading, text, path, buttonLabel } = Astro.props;
+const href = store === 'playasia' ? playAsiaLink(path) : cdJapanLink(path);
+const storeName = store === 'playasia' ? 'Play-Asia' : 'CDJapan';
+---
+<div class="aff-box">
+  <div class="label">Recommended · {storeName}</div>
+  <h4>{heading}</h4>
+  <p>{text}</p>
+  <a class="btn btn-primary" href={href} target="_blank" rel="nofollow sponsored noopener">
+    {buttonLabel ?? `Browse on ${storeName} →`}
+  </a>
+</div>

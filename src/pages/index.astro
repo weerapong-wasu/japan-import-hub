@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const latest = articles.slice(0, 6);
+---
+<Base>
+  <section class="hero">
+    <div class="container">
+      <h1>Import Japanese games &amp; music.<br /><em>Anyone can do it.</em></h1>
+      <p class="lead">
+        Region-free gaming, limited edition J-pop CDs, vinyl, anime figures and collector
+        merchandise — clear English guides for buying directly from Japan, no Japanese needed.
+      </p>
+      <a class="btn btn-primary" href="/games">Start with Import Games</a>
+      <a class="btn btn-ghost" href="/figures">Figures &amp; Merch</a>
+      <a class="btn btn-ghost" href="/music">J-Pop &amp; Music</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Latest Guides</h2>
+      <p class="sub">Fresh, practical guides updated continuously.</p>
+      <div class="grid">
+        {latest.map((a) => (
+          <ArticleCard
+            href={`/guides/${a.id}`}
+            title={a.data.title}
+            description={a.data.description}
+            category={a.data.category}
+            emoji={a.data.heroEmoji}
+            date={a.data.pubDate}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: var(--bg-soft); border-top: 1px solid var(--border);">
+    <div class="container">
+      <h2>Why import from Japan?</h2>
+      <p class="sub">Three reasons collectors and players go straight to the source.</p>
+      <div class="grid">
+        <div class="card">
+          <span class="emoji">🎮</span>
+          <h3>Japan-only releases</h3>
+          <p>Many games, editions and soundtracks never leave Japan. Importing is the only way to own them physically.</p>
+        </div>
+        <div class="card">
+          <span class="emoji">💿</span>
+          <h3>First-press bonuses</h3>
+          <p>J-pop CDs and Blu-rays ship with first-press extras — photobooks, event codes, alternate covers — that disappear fast.</p>
+        </div>
+        <div class="card">
+          <span class="emoji">📦</span>
+          <h3>Easier than you think</h3>
+          <p>Stores like Play-Asia and CDJapan have full English checkout and ship worldwide. Our guides walk you through it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="pricing-box">
+        <div class="label">New — Digital Toolkit</div>
+        <h2 style="margin: 6px 0;">Japan Import Master Toolkit</h2>
+        <p>
+          A 17-chapter Master Guide, printable pre-purchase checklist and a
+          landed-cost price tracker — everything from this site, condensed
+          into files you can use while you shop.
+        </p>
+        <a href="/toolkit" class="btn btn-primary">See what's inside →</a>
+      </div>
+    </div>
+  </section>
+</Base>

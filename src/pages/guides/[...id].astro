@@ -1,0 +1,65 @@
+---
+import Base from '../../layouts/Base.astro';
+import AffiliateCta from '../../components/AffiliateCta.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  return articles.map((article) => ({
+    params: { id: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+const { title, description, category, pubDate, heroEmoji } = article.data;
+const badgeClass = `badge badge-${category}`;
+const labels = { games: 'Import Games', music: 'J-Pop & Music', figures: 'Figures & Merch' };
+const label = labels[category];
+---
+<Base title={title} description={description} type="article">
+  <div class="container">
+    <header class="article-header">
+      <span class={badgeClass}>{label}</span>
+      <h1>{heroEmoji} {title}</h1>
+      <p class="date">
+        Published {pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+    </header>
+
+    <div class="disclosure">
+      <strong>Affiliate disclosure:</strong> this article contains affiliate links to Play-Asia and/or CDJapan.
+      If you buy through them we may earn a small commission at no extra cost to you. It keeps these guides free for everyone.
+    </div>
+
+    <article class="prose">
+      <Content />
+    </article>
+
+    {category === 'games' && (
+      <AffiliateCta
+        store="playasia"
+        heading="Browse import games on Play-Asia"
+        text="Worldwide shipping, English store, new and pre-owned Japanese & Asia releases."
+        path="/games"
+      />
+    )}
+    {category === 'music' && (
+      <AffiliateCta
+        store="cdjapan"
+        heading="Order Japanese music on CDJapan"
+        text="CDs, vinyl, Blu-rays and first-press editions shipped directly from Japan."
+        path="/"
+      />
+    )}
+    {category === 'figures' && (
+      <AffiliateCta
+        store="playasia"
+        heading="Browse figures & collectibles on Play-Asia"
+        text="Official anime figures, game merchandise and Japan-exclusive collectibles, shipped worldwide."
+        path="/toys"
+      />
+    )}
+  </div>
+</Base>

@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import AffiliateCta from '../components/AffiliateCta.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft && data.category === 'music'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<Base title="J-Pop & Japanese Music" description="Guides for buying J-pop CDs, vinyl, anime soundtracks and Blu-rays directly from Japan: first press editions, bonus tracking, and where to order.">
+  <section class="hero">
+    <div class="container">
+      <h1>J-Pop &amp; <em>Japanese Music</em></h1>
+      <p class="lead">
+        First-press CDs, limited vinyl, anime soundtracks and concert Blu-rays —
+        how to get authentic Japanese releases delivered to your door.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>All Music Guides</h2>
+      <div class="grid">
+        {articles.map((a) => (
+          <ArticleCard
+            href={`/guides/${a.id}`}
+            title={a.data.title}
+            description={a.data.description}
+            category={a.data.category}
+            emoji={a.data.heroEmoji}
+            date={a.data.pubDate}
+          />
+        ))}
+      </div>
+
+      <AffiliateCta
+        store="cdjapan"
+        heading="Ready to order Japanese music?"
+        text="CDJapan is one of the largest exporters of Japanese CDs, vinyl and Blu-rays, with English support and worldwide shipping."
+        path="/"
+      />
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,46 @@
+name: Daily article draft
+
+on:
+  schedule:
+    # 22:00 UTC = 05:00 Asia/Bangkok — a fresh draft waiting every morning
+    - cron: '0 22 * * *'
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate draft article with Claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/generate-article.mjs
+
+      - name: Verify site still builds
+        run: |
+          npm ci
+          npm run build
+
+      - name: Open pull request for review
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'content: daily draft article'
+          title: '📝 Daily draft article — review before publish'
+          body: |
+            Auto-generated draft article (marked `draft: true`, so it is NOT live).
+
+            **To publish:**
+            1. Review the article content and fix anything off.
+            2. Change `draft: true` → `draft: false` in the frontmatter.
+            3. Merge this PR — the site redeploys automatically.
+          branch: auto/daily-article
+          delete-branch: true

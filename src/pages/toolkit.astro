@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { PRODUCT } from '../site.config';
+---
+<Base
+  title={PRODUCT.name}
+  description={`${PRODUCT.tagline}. PDF guide, checklist and price tracker for importing games, music and figures from Japan.`}
+>
+  <section class="hero">
+    <div class="container">
+      <span class="badge badge-figures">Digital Product</span>
+      <h1>{PRODUCT.name.replace(' Toolkit', '')} <em>Toolkit</em></h1>
+      <p class="lead">{PRODUCT.tagline} — built from every guide on this site, condensed into files you can actually use while you shop.</p>
+      <a href="#buy" class="btn btn-primary">Get the Toolkit — {PRODUCT.displayPrice}</a>
+      <a href="/guides/beginners-guide-importing-japanese-games" class="btn btn-ghost">Read the free guide first</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>What's inside</h2>
+      <p class="sub">One-time purchase. Instant download. Free lifetime updates.</p>
+      <div class="grid">
+        {PRODUCT.includes.map((item) => (
+          <div class="card">
+            <span class="emoji">📦</span>
+            <p style="color: var(--text);">{item}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="buy">
+    <div class="container">
+      <div class="pricing-box">
+        <div class="label">One-time purchase</div>
+        <div class="price">{PRODUCT.displayPrice}</div>
+        <p>Secure checkout by Stripe · Cards, Apple Pay &amp; Google Pay · Instant download</p>
+        <button class="btn btn-primary btn-buy" data-buy>Buy now — instant download</button>
+        <p class="buy-msg" data-buy-msg aria-live="polite"></p>
+        <p class="fine">
+          Our core guides stay <a href="/games">free for everyone</a> — the toolkit is
+          for those who want the shortcut, and it keeps this site running.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 640px;">
+      <NewsletterForm />
+    </div>
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll('[data-buy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const b = btn as HTMLButtonElement;
+      const msg = document.querySelector('[data-buy-msg]') as HTMLElement;
+      b.disabled = true;
+      b.textContent = 'Starting secure checkout…';
+      try {
+        const res = await fetch('/api/checkout', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.url) {
+          window.location.href = data.url;
+          return;
+        }
+        msg.textContent = data.error ?? 'Checkout unavailable right now.';
+      } catch {
+        msg.textContent = 'Network error — please try again.';
+      }
+      b.disabled = false;
+      b.textContent = 'Buy now — instant download';
+    });
+  });
+
+  // Show a friendly note if buyer cancelled checkout
+  if (new URLSearchParams(location.search).has('cancelled')) {
+    const msg = document.querySelector('[data-buy-msg]') as HTMLElement;
+    if (msg) msg.textContent = 'Checkout cancelled — no charge was made. Ready when you are!';
+  }
+</script>

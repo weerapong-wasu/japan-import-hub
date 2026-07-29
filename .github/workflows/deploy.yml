@@ -1,0 +1,40 @@
+# ============================================================
+# AUTO-DEPLOY — every push to main deploys to Vercel production.
+# Requires ONE repo secret: VERCEL_TOKEN
+#   (repo → Settings → Secrets and variables → Actions → New repository secret)
+# First run auto-creates the Vercel project. No dashboard clicking needed.
+# ============================================================
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check secret present
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "::error::VERCEL_TOKEN secret is missing — add it in repo Settings → Secrets → Actions"
+            exit 1
+          fi
+
+      - name: Deploy (production)
+        run: |
+          npx vercel@latest deploy --prod --yes --token "${{ secrets.VERCEL_TOKEN }}" > deploy-url.txt
+          echo "### 🚀 Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "URL: $(cat deploy-url.txt)" >> $GITHUB_STEP_SUMMARY
+          cat deploy-url.txt

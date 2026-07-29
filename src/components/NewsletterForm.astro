@@ -1,0 +1,62 @@
+---
+// Newsletter signup — posts to /api/subscribe, no page reload.
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+---
+<div class={`newsletter ${compact ? 'newsletter-compact' : ''}`}>
+  {!compact && (
+    <>
+      <h3>🇯🇵 Import Deals Newsletter</h3>
+      <p>
+        Price drops, restocks and limited-edition alerts from Japan —
+        straight to your inbox. Free forever.
+      </p>
+    </>
+  )}
+  <form class="newsletter-form" data-newsletter>
+    <input
+      type="email"
+      name="email"
+      placeholder="you@example.com"
+      required
+      maxlength="254"
+      autocomplete="email"
+    />
+    <button type="submit" class="btn btn-primary">Subscribe</button>
+  </form>
+  <p class="newsletter-msg" data-newsletter-msg aria-live="polite"></p>
+</div>
+
+<script>
+  document.querySelectorAll('form[data-newsletter]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = form as HTMLFormElement;
+      const msg = f.parentElement?.querySelector('[data-newsletter-msg]') as HTMLElement;
+      const btn = f.querySelector('button') as HTMLButtonElement;
+      const email = (f.querySelector('input[name="email"]') as HTMLInputElement).value;
+
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        msg.textContent = res.ok ? data.message : data.error;
+        msg.className = res.ok ? 'newsletter-msg ok' : 'newsletter-msg err';
+        if (res.ok) f.reset();
+      } catch {
+        msg.textContent = 'Network error — please try again.';
+        msg.className = 'newsletter-msg err';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Subscribe';
+      }
+    });
+  });
+</script>

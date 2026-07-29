@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Thank you! Download your Toolkit" description="Download the Japan Import Master Toolkit.">
+  <section class="hero">
+    <div class="container" style="max-width: 680px;">
+      <h1>🎉 Thank you — <em>you're all set!</em></h1>
+      <p class="lead">
+        Your payment was received. Click below to download the
+        Japan Import Master Toolkit. A receipt has been emailed to you by Stripe.
+      </p>
+      <a class="btn btn-primary" data-download href="#">⬇ Download the Toolkit</a>
+      <p class="buy-msg" data-dl-msg aria-live="polite"></p>
+      <p class="fine" style="margin-top: 24px;">
+        Link not working? Reply to your Stripe receipt email and we'll send
+        the files directly. Your download link stays valid — just revisit
+        this page from the same browser tab.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const sessionId = params.get('session_id');
+  const link = document.querySelector('[data-download]') as HTMLAnchorElement;
+  const msg = document.querySelector('[data-dl-msg]') as HTMLElement;
+
+  if (!sessionId) {
+    link.style.display = 'none';
+    msg.textContent =
+      'No purchase session found. Please use the link from your receipt email, or buy the toolkit first.';
+  } else {
+    link.href = `/api/download?session_id=${encodeURIComponent(sessionId)}`;
+  }
+</script>

@@ -1,0 +1,142 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Public keys are safe in the browser — RLS protects all data.
+const supaUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const supaAnon = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+const configured = Boolean(supaUrl && supaAnon);
+---
+<Base title="My Account & Wishlist" description="Sign in to track your Japan import wishlist and target prices.">
+  <section class="hero">
+    <div class="container" style="max-width: 720px;">
+      <h1>My <em>Account</em></h1>
+      <p class="lead">Free member area — keep a wishlist of imports you're hunting, with target landed-cost prices.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 720px;">
+      {!configured ? (
+        <div class="card"><p>Member accounts are not configured yet — check back soon!</p></div>
+      ) : (
+        <>
+          <!-- Signed OUT view -->
+          <div class="card" data-view="signed-out" hidden>
+            <h3>Sign in — no password needed</h3>
+            <p>Enter your email and we'll send you a magic sign-in link.</p>
+            <form data-login class="newsletter-form" style="margin-top: 10px;">
+              <input type="email" name="email" placeholder="you@example.com" required autocomplete="email" />
+              <button type="submit" class="btn btn-primary">Send magic link</button>
+            </form>
+            <p class="newsletter-msg" data-login-msg aria-live="polite"></p>
+          </div>
+
+          <!-- Signed IN view -->
+          <div data-view="signed-in" hidden>
+            <div class="card" style="margin-bottom: 18px;">
+              <p style="margin:0;">Signed in as <b data-user-email></b>
+                <button class="btn btn-ghost" data-logout style="margin-left: 12px; cursor: pointer;">Sign out</button>
+              </p>
+            </div>
+
+            <h2>🎯 My Wishlist</h2>
+            <p class="sub">Set your target landed cost (JPY). When a listing hits it — buy without hesitating.</p>
+            <form data-wish-form class="wish-form">
+              <input name="item_name" placeholder="Item (e.g. First press CD, 1/7 scale figure)" required maxlength="200" />
+              <input name="shop_url" placeholder="Shop URL (optional)" maxlength="500" />
+              <input name="target_price" type="number" placeholder="Target ¥" min="0" max="99999999" />
+              <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+            <p class="newsletter-msg" data-wish-msg aria-live="polite"></p>
+            <div data-wish-list class="wish-list"></div>
+          </div>
+        </>
+      )}
+    </div>
+  </section>
+</Base>
+
+{configured && (
+<script define:vars={{ supaUrl, supaAnon }}>
+  import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm').then(({ createClient }) => {
+    const supa = createClient(supaUrl, supaAnon);
+    const $ = (s) => document.querySelector(s);
+    const outView = $('[data-view="signed-out"]');
+    const inView = $('[data-view="signed-in"]');
+
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    async function render() {
+      const { data: { session } } = await supa.auth.getSession();
+      outView.hidden = !!session;
+      inView.hidden = !session;
+      if (!session) return;
+      $('[data-user-email]').textContent = session.user.email;
+      loadWishlist(session.user.id);
+    }
+
+    async function loadWishlist(userId) {
+      const list = $('[data-wish-list]');
+      const { data, error } = await supa
+        .from('wishlist_items').select('*')
+        .order('created_at', { ascending: false });
+      if (error) { list.innerHTML = '<p class="fine">Could not load wishlist.</p>'; return; }
+      if (!data.length) { list.innerHTML = '<p class="fine">Nothing yet — add your first hunt above.</p>'; return; }
+      list.innerHTML = data.map((w) => `
+        <div class="card wish-item">
+          <div>
+            <b>${esc(w.item_name)}</b>
+            ${w.target_price ? `<span class="badge badge-figures">target ¥${Number(w.target_price).toLocaleString()}</span>` : ''}
+            ${w.shop_url ? `<br><a href="${esc(w.shop_url)}" rel="nofollow noopener" target="_blank">view listing ↗</a>` : ''}
+          </div>
+          <button class="btn btn-ghost" data-del="${w.id}" style="cursor:pointer;">✕</button>
+        </div>`).join('');
+      list.querySelectorAll('[data-del]').forEach((btn) =>
+        btn.addEventListener('click', async () => {
+          await supa.from('wishlist_items').delete().eq('id', btn.dataset.del);
+          loadWishlist(userId);
+        }));
+    }
+
+    // Magic-link login
+    $('[data-login]')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value.trim();
+      const msg = $('[data-login-msg]');
+      const { error } = await supa.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.href },
+      });
+      msg.textContent = error
+        ? 'Could not send link — please try again.'
+        : '✉ Check your inbox — your sign-in link is on the way!';
+      msg.className = error ? 'newsletter-msg err' : 'newsletter-msg ok';
+    });
+
+    // Add wishlist item
+    $('[data-wish-form]')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { data: { session } } = await supa.auth.getSession();
+      if (!session) return;
+      const f = e.target;
+      const { error } = await supa.from('wishlist_items').insert({
+        user_id: session.user.id,
+        item_name: f.item_name.value.trim(),
+        shop_url: f.shop_url.value.trim() || null,
+        target_price: f.target_price.value ? Number(f.target_price.value) : null,
+      });
+      const msg = $('[data-wish-msg]');
+      if (error) { msg.textContent = 'Could not add item.'; msg.className = 'newsletter-msg err'; return; }
+      msg.textContent = ''; f.reset(); loadWishlist(session.user.id);
+    });
+
+    $('[data-logout]')?.addEventListener('click', async () => {
+      await supa.auth.signOut(); render();
+    });
+
+    supa.auth.onAuthStateChange(() => render());
+    render();
+  });
+</script>
+)}

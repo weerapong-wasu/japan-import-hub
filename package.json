@@ -1,0 +1,20 @@
+{
+  "name": "japan-import-hub",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "generate:article": "node scripts/generate-article.mjs"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.11",
+    "@astrojs/sitemap": "^3.2.1",
+    "@astrojs/vercel": "^8.2.11",
+    "@supabase/supabase-js": "^2.111.0",
+    "astro": "^5.1.1",
+    "stripe": "^22.3.2"
+  }
+}

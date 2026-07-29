@@ -1,0 +1,75 @@
+---
+import { SITE } from '../site.config';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: string;
+}
+
+const { title, description = SITE.description, type = 'website' } = Astro.props;
+const pageTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ff4d6d%22/></svg>" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner">
+        <a href="/" class="logo">Japan<span class="jp">Import</span>Hub</a>
+        <nav class="nav">
+          <a href="/games">Import Games</a>
+          <a href="/music">J-Pop &amp; Music</a>
+          <a href="/figures">Figures &amp; Merch</a>
+          <a href="/toolkit" class="nav-toolkit">Toolkit</a>
+          <a href="/account">Account</a>
+          <a href="/about">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-newsletter">
+        <NewsletterForm compact />
+      </div>
+      <div class="container cols">
+        <div>
+          <strong>{SITE.name}</strong><br />
+          {SITE.tagline}
+        </div>
+        <div>
+          <a href="/games">Import Games</a> ·
+          <a href="/music">J-Pop &amp; Music</a> ·
+          <a href="/figures">Figures &amp; Merch</a> ·
+          <a href="/toolkit">Toolkit</a> ·
+          <a href="/about">About</a> ·
+          <a href="/disclosure">Affiliate Disclosure</a>
+        </div>
+        <div>
+          © {new Date().getFullYear()} {SITE.name}. As an affiliate partner we may earn from qualifying purchases.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

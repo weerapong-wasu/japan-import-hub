@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import AffiliateCta from '../components/AffiliateCta.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft && data.category === 'games'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<Base title="Import Games" description="Guides for importing Japanese and Asia-exclusive video games: region-free info, limited editions, retro imports and where to buy.">
+  <section class="hero">
+    <div class="container">
+      <h1>Import <em>Games</em></h1>
+      <p class="lead">
+        Japan &amp; Asia exclusives, limited print runs, English-subtitled Asia versions and retro classics —
+        everything you need to know before you import.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>All Game Guides</h2>
+      <div class="grid">
+        {articles.map((a) => (
+          <ArticleCard
+            href={`/guides/${a.id}`}
+            title={a.data.title}
+            description={a.data.description}
+            category={a.data.category}
+            emoji={a.data.heroEmoji}
+            date={a.data.pubDate}
+          />
+        ))}
+      </div>
+
+      <AffiliateCta
+        store="playasia"
+        heading="Ready to browse import games?"
+        text="Play-Asia stocks new and pre-owned games from Japan and Asia, ships worldwide, and lists everything in English."
+        path="/games"
+      />
+    </div>
+  </section>
+</Base>
