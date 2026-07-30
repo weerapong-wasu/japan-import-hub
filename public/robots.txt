@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://japan-import-hub.vercel.app/sitemap-index.xml
