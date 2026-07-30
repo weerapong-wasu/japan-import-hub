@@ -12,34 +12,38 @@ export const SITE = {
 };
 
 // ------------------------------------------------------------
-// AFFILIATE IDS — replace placeholders after your applications
-// are approved. Links will not earn commission until you do.
+// AFFILIATE IDS — LIVE (approved 2026-07-30)
 // ------------------------------------------------------------
 export const AFFILIATE = {
-  // Play-Asia: after approval you get a tag like "?tagid=XXXXXX"
-  // appended to product/category URLs.
-  playAsiaTag: 'REPLACE_PLAYASIA_TAG',
+  // Play-Asia affiliate program — confirmed link format from dashboard:
+  // https://www.play-asia.com/?affiliate_id=XXXXXXX
+  playAsiaTag: '6032549',
 
-  // CDJapan: after approval, generate links in the CDJapan
-  // affiliate dashboard. They look like:
-  // https://www.cdjapan.co.jp/aff/click.cgi/<PROGRAM>/<YOUR_ID>/<TARGET>
-  cdJapanId: 'REPLACE_CDJAPAN_ID',
+  // CDJapan affiliate program — approved (Affiliate ID: A664570).
+  // TEMP: using a query-param fallback until we confirm the exact
+  // tracking link format from the CDJapan dashboard's link-creation
+  // tool (Affiliate Top → likely under "Campaign Participation" or a
+  // "Banner/Text Link" page) — a URL #fragment (the old code) is NEVER
+  // sent to the server, so it would have tracked zero commission.
+  cdJapanId: 'A664570',
 };
 
 /** Build a Play-Asia link with the affiliate tag attached. */
 export function playAsiaLink(path: string): string {
-  const base = path.startsWith('http') ? path : `https://www.playasia.com${path}`;
+  // NOTE: real domain has a hyphen — playasia.com (no hyphen) is a
+  // different domain and would have silently dropped the affiliate tag.
+  const base = path.startsWith('http') ? path : `https://www.play-asia.com${path}`;
   const sep = base.includes('?') ? '&' : '?';
-  return `${base}${sep}tagid=${AFFILIATE.playAsiaTag}`;
+  return `${base}${sep}affiliate_id=${AFFILIATE.playAsiaTag}`;
 }
 
 /** Build a CDJapan search/category link through the affiliate redirect. */
 export function cdJapanLink(path: string): string {
   const target = path.startsWith('http') ? path : `https://www.cdjapan.co.jp${path}`;
-  // NOTE: replace this pattern with the exact link format from your
-  // CDJapan affiliate dashboard once approved — the program token
-  // portion is unique per affiliate.
-  return target + `#aff=${AFFILIATE.cdJapanId}`;
+  const sep = target.includes('?') ? '&' : '?';
+  // TEMP best-guess query param — swap for the exact format from the
+  // CDJapan affiliate dashboard's link generator once confirmed.
+  return `${target}${sep}aff_id=${AFFILIATE.cdJapanId}`;
 }
 
 // ------------------------------------------------------------

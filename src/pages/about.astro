@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { playAsiaLink, cdJapanLink } from '../site.config';
 ---
 <Base title="About" description="Why Japan Import Hub exists: making Japanese games and music accessible to everyone, everywhere.">
   <div class="container">
@@ -16,8 +17,8 @@ import Base from '../layouts/Base.astro';
       <p>
         Every guide here is written in plain English, explains the <em>why</em> behind each step,
         and points you to trusted stores that ship worldwide with English checkout —
-        primarily <a href="https://www.playasia.com" rel="nofollow sponsored">Play-Asia</a> and
-        <a href="https://www.cdjapan.co.jp" rel="nofollow sponsored">CDJapan</a>.
+        primarily <a href={playAsiaLink('/')} rel="nofollow sponsored" target="_blank">Play-Asia</a> and
+        <a href={cdJapanLink('/')} rel="nofollow sponsored" target="_blank">CDJapan</a>.
       </p>
       <h2>How we keep this free</h2>
       <p>
