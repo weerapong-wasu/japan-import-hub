@@ -50,6 +50,31 @@ const TOPIC_POOL = [
   { slug: 'concert-blurays-from-japan', category: 'music', topic: 'Buying Japanese concert Blu-rays: editions, region codes, and bonuses' },
   { slug: 'idol-cd-types-explained', category: 'music', topic: 'Idol CD Types (A/B/C) explained for international fans' },
   { slug: 'jpop-photobooks-and-packaging', category: 'music', topic: 'Why Japanese CD packaging and photobooks are worth collecting' },
+
+  // --- MANGA EVERGREEN FRANCHISE LAYER ---
+  // Immortal franchises with multi-generation global fanbases. Each article
+  // = collector/import guide angle (NEVER news, NEVER "upcoming releases").
+  // High search volume + buyer intent + zero expiry date.
+  { slug: 'one-piece-figure-collecting-guide', category: 'figures', topic: 'One Piece figure collecting: P.O.P, Figuarts ZERO, Ichiban Kuji and how to import them from Japan' },
+  { slug: 'naruto-figure-collecting-guide', category: 'figures', topic: 'Naruto figure collecting: the import guide for a global generation of fans' },
+  { slug: 'saint-seiya-myth-cloth-guide', category: 'figures', topic: 'Saint Seiya Myth Cloth collecting: why the die-cast armor line is a lifelong hobby, and how to import it' },
+  { slug: 'evangelion-collecting-guide', category: 'figures', topic: 'Evangelion collecting: figures, model kits and why the franchise never fades' },
+  { slug: 'sailor-moon-collecting-guide', category: 'figures', topic: 'Sailor Moon collecting: Figuarts, Proplica and importing the icons of magical girl history' },
+  { slug: 'jojo-bizarre-adventure-collecting', category: 'figures', topic: 'JoJo\'s Bizarre Adventure collecting: statues, figures and manga editions worth importing' },
+  { slug: 'demon-slayer-figure-guide', category: 'figures', topic: 'Demon Slayer figure collecting: navigating one of the biggest prize-figure lineups ever made' },
+  { slug: 'berserk-manga-collecting-guide', category: 'figures', topic: 'Berserk collecting: deluxe manga editions, statues, and importing the dark fantasy masterpiece' },
+  { slug: 'doraemon-collecting-guide', category: 'figures', topic: 'Doraemon collecting: Japan\'s national icon and the merchandise generations grew up with' },
+  { slug: 'dragon-quest-slime-merch-guide', category: 'games', topic: 'Dragon Quest collecting: why Japan\'s beloved RPG has the most charming merchandise in gaming' },
+  { slug: 'kinnikuman-figures-guide', category: 'figures', topic: 'Kinnikuman collecting: from keshi rubber figures to modern re-releases' },
+  { slug: 'initial-d-collecting-guide', category: 'music', topic: 'Initial D collecting: manga, Eurobeat soundtracks and why the franchise keeps drifting on' },
+  { slug: 'macross-collecting-guide', category: 'figures', topic: 'Macross collecting: transforming Valkyries and importing the mecha line that started it all' },
+  { slug: 'hokuto-no-ken-collecting', category: 'figures', topic: 'Fist of the North Star collecting: manga editions and figures of a legend' },
+  { slug: 'yugioh-japanese-cards-guide', category: 'games', topic: 'Importing Japanese Yu-Gi-Oh cards and merchandise: what collectors should know' },
+  { slug: 'pokemon-japanese-exclusives-guide', category: 'games', topic: 'Japanese Pokemon exclusives: Pokemon Center items and why collectors import from Japan' },
+  { slug: 'ghibli-merchandise-import-guide', category: 'figures', topic: 'Studio Ghibli merchandise: importing Totoro, Kiki and the timeless catalog from Japan' },
+  { slug: 'gundam-manga-anime-media-guide', category: 'music', topic: 'Gundam beyond Gunpla: soundtracks, Blu-ray boxes and media worth importing' },
+  { slug: 'detective-conan-collecting-guide', category: 'figures', topic: 'Detective Conan collecting: three decades of mystery merchandise from Japan' },
+  { slug: 'sakura-cardcaptor-collecting-guide', category: 'figures', topic: 'Cardcaptor Sakura collecting: Clow Cards, figures and magical girl history' },
 ];
 
 const existing = new Set(

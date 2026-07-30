@@ -18,6 +18,29 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 // no rush. See LAUNCH-TONIGHT.md for the 2-minute setup steps.
 const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined;
 const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION as string | undefined;
+
+// Global SEO: WebSite + Organization structured data on every page.
+// Article pages add their own Article schema on top (see guides template).
+const siteSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': new URL('/#website', Astro.site).href,
+      url: Astro.site?.href,
+      name: SITE.name,
+      description: SITE.description,
+      inLanguage: 'en',
+    },
+    {
+      '@type': 'Organization',
+      '@id': new URL('/#organization', Astro.site).href,
+      name: SITE.name,
+      url: Astro.site?.href,
+      logo: new URL('/og-image.png', Astro.site).href,
+    },
+  ],
+});
 ---
 <!doctype html>
 <html lang={SITE.locale}>
@@ -43,6 +66,8 @@ const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION as string | unde
     <meta name="twitter:image" content={new URL('/og-image.png', Astro.site)} />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ff4d6d%22/></svg>" />
     {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
+    <script type="application/ld+json" set:html={siteSchema} />
+    <slot name="head" />
     {gaId && (
       <>
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
