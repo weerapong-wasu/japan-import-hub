@@ -39,7 +39,7 @@ a:hover { text-decoration: underline; }
 }
 .site-header .inner {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px; max-width: var(--maxw); margin: 0 auto;
+  gap: 20px; padding: 14px 20px; max-width: var(--maxw); margin: 0 auto;
 }
 .logo {
   font-weight: 800; font-size: 1.15rem; color: var(--text); letter-spacing: -0.02em;

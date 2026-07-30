@@ -1,0 +1,153 @@
+---
+import Base from '../layouts/Base.astro';
+import AffiliateCta from '../components/AffiliateCta.astro';
+---
+<Base
+  title="Japan Import Landed Cost Calculator"
+  description="Free calculator: know your real total cost in USD or THB before you buy from Play-Asia or CDJapan — item price, shipping, and customs, all in one place."
+>
+  <section class="hero" style="padding: 56px 0 40px;">
+    <div class="container">
+      <h1>Landed Cost <em>Calculator</em></h1>
+      <p class="lead">
+        The price on the Japanese store page is never what you actually pay. Add shipping
+        and customs, see your real total in USD or THB, before you click buy.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="container" style="max-width: 640px;">
+      <div class="card" style="padding: 28px;">
+        <form data-calc class="calc-form">
+          <label class="calc-label">
+            Item price (¥ JPY)
+            <input type="number" name="price" min="0" step="1" placeholder="e.g. 6980" required />
+          </label>
+          <label class="calc-label">
+            Shipping cost (¥ JPY)
+            <input type="number" name="shipping" min="0" step="1" placeholder="e.g. 2500" value="0" />
+          </label>
+          <label class="calc-label">
+            Estimated customs / duty (%)
+            <input type="number" name="duty" min="0" max="100" step="0.1" placeholder="e.g. 0 — varies by country" value="0" />
+          </label>
+          <p class="fine" style="margin: -4px 0 4px;">
+            Customs rules and duty-free thresholds vary a lot by country — check your own
+            country's rules for an accurate %. This calculator gives an estimate only, not
+            tax or legal advice.
+          </p>
+          <label class="calc-label">
+            Show total in
+            <select name="currency">
+              <option value="USD">US Dollar (USD)</option>
+              <option value="THB">Thai Baht (THB)</option>
+            </select>
+          </label>
+          <button type="submit" class="btn btn-primary" style="border:0;cursor:pointer;">Calculate landed cost</button>
+        </form>
+
+        <div data-calc-result class="calc-result" hidden>
+          <div class="calc-row"><span>Item + shipping (¥)</span><strong data-r-jpy></strong></div>
+          <div class="calc-row"><span>Estimated customs/duty</span><strong data-r-duty></strong></div>
+          <div class="calc-row calc-total"><span>Total landed cost</span><strong data-r-total></strong></div>
+          <p class="fine" data-r-rate style="margin-top:10px;"></p>
+        </div>
+      </div>
+
+      <p class="fine" style="text-align:center; margin-top: 14px;">
+        Exchange rates update live from a public rates API. If you're offline, a recent
+        approximate rate is used instead.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="container" style="max-width: 640px;">
+      <AffiliateCta
+        store="playasia"
+        heading="Know your total? Go find the item."
+        text="Play-Asia ships worldwide with English checkout — see the real price before you commit."
+        path="/"
+        buttonLabel="Browse Play-Asia →"
+      />
+      <AffiliateCta
+        store="cdjapan"
+        heading="Looking for CDs or vinyl instead?"
+        text="CDJapan specializes in music imports with first-press and limited editions."
+        path="/"
+        buttonLabel="Browse CDJapan →"
+      />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .calc-form { display: flex; flex-direction: column; gap: 14px; }
+  .calc-label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 0.92rem; color: var(--text-dim); }
+  .calc-label input, .calc-label select {
+    background: var(--bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; font-size: 1rem; font-weight: 500;
+  }
+  .calc-label input:focus, .calc-label select:focus { outline: none; border-color: var(--accent2); }
+  .calc-result { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border); }
+  .calc-row { display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-dim); }
+  .calc-total { color: var(--text); font-size: 1.25rem; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 14px; }
+</style>
+
+<script>
+  // Fallback rates (approximate, updated at build time) used only if the
+  // live rates API is unreachable — the calculator must never fully break.
+  const FALLBACK_RATES: Record<string, number> = { USD: 0.0067, THB: 0.23 };
+
+  async function getRate(currency: string): Promise<{ rate: number; live: boolean }> {
+    try {
+      const res = await fetch(`https://api.frankfurter.app/latest?from=JPY&to=${currency}`);
+      if (!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      const rate = data?.rates?.[currency];
+      if (typeof rate === 'number') return { rate, live: true };
+      throw new Error('no rate');
+    } catch {
+      return { rate: FALLBACK_RATES[currency], live: false };
+    }
+  }
+
+  const form = document.querySelector<HTMLFormElement>('[data-calc]');
+  const result = document.querySelector<HTMLElement>('[data-calc-result]');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const price = Number(f.get('price')) || 0;
+    const shipping = Number(f.get('shipping')) || 0;
+    const dutyPct = Number(f.get('duty')) || 0;
+    const currency = String(f.get('currency') || 'USD');
+
+    const subtotalJpy = price + shipping;
+    const dutyJpy = subtotalJpy * (dutyPct / 100);
+    const totalJpy = subtotalJpy + dutyJpy;
+
+    const submitBtn = form.querySelector('button')!;
+    submitBtn.textContent = 'Calculating...';
+    submitBtn.setAttribute('disabled', 'true');
+
+    const { rate, live } = await getRate(currency);
+
+    const fmt = (jpy: number) =>
+      new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(jpy * rate);
+
+    result!.hidden = false;
+    result!.querySelector('[data-r-jpy]')!.textContent = `¥${subtotalJpy.toLocaleString()} (${fmt(subtotalJpy)})`;
+    result!.querySelector('[data-r-duty]')!.textContent =
+      dutyPct > 0 ? `¥${Math.round(dutyJpy).toLocaleString()} (${fmt(dutyJpy)})` : 'None entered';
+    result!.querySelector('[data-r-total]')!.textContent = `¥${Math.round(totalJpy).toLocaleString()} ≈ ${fmt(totalJpy)}`;
+    result!.querySelector('[data-r-rate]')!.textContent = live
+      ? `Live rate: ¥1 ≈ ${rate.toFixed(5)} ${currency}`
+      : `Approximate rate (offline fallback): ¥1 ≈ ${rate.toFixed(5)} ${currency}`;
+
+    submitBtn.textContent = 'Calculate landed cost';
+    submitBtn.removeAttribute('disabled');
+    result!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+</script>
