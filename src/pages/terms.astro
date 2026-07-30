@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, PRODUCT } from '../site.config';
+---
+<Base title="Terms of Service" description="The terms for using Japan Import Hub and buying the Import Toolkit.">
+  <div class="container">
+    <header class="article-header">
+      <h1>Terms of Service</h1>
+      <p class="date">Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    </header>
+    <article class="prose">
+      <p>By using {SITE.name}, you agree to these terms. If you don't agree, please don't use the site.</p>
+
+      <h2>The content on this site</h2>
+      <p>
+        Our guides are written to be accurate and genuinely helpful, but importing rules, shop
+        policies, and shipping costs change over time and vary by country. Nothing on this site is
+        legal, customs, or financial advice — always confirm specifics (like duty rates) with your
+        own country's customs authority before making a purchase decision based on our estimates.
+      </p>
+
+      <h2>Affiliate links</h2>
+      <p>
+        We link to third-party retailers (Play-Asia, CDJapan) and earn a commission on qualifying
+        purchases at no extra cost to you — see our <a href="/disclosure">affiliate disclosure</a>.
+        We are not the seller of record for anything purchased through these links; your purchase,
+        shipping, and any returns are between you and that retailer, governed by their own terms.
+      </p>
+
+      <h2>The {PRODUCT.name} (digital product)</h2>
+      <ul>
+        <li>This is a digital download ({PRODUCT.displayPrice}, one-time payment) — no physical item ships.</li>
+        <li>Payment is processed securely by Stripe; we never see your card details.</li>
+        <li>
+          Because it's an instantly-delivered digital file, sales are generally final once
+          downloaded. If something's genuinely wrong with your order (failed payment, corrupted
+          file, wrong item), contact us with your receipt and we'll make it right.
+        </li>
+        <li>"Free lifetime updates" means access to future revisions of the same toolkit at no
+          extra charge — it does not extend to unrelated future products.</li>
+      </ul>
+
+      <h2>The Landed Cost Calculator</h2>
+      <p>
+        Our <a href="/calculator">calculator</a> gives an estimate only, using exchange rates from a
+        third-party rates API and duty percentages you enter yourself. We cannot guarantee it
+        matches what customs actually charges on your specific shipment — always verify against
+        your own country's rules for anything expensive.
+      </p>
+
+      <h2>Accounts</h2>
+      <p>
+        If you create an account to use the wishlist feature, you're responsible for keeping access
+        to the email you signed up with. Don't use the account or wishlist features for anything
+        illegal or abusive — we may suspend accounts that do.
+      </p>
+
+      <h2>Limitation of liability</h2>
+      <p>
+        {SITE.name} is provided "as is." To the extent permitted by law, we aren't liable for
+        losses arising from customs charges, shipping issues, or purchases made through affiliate
+        links to third-party stores — those transactions are between you and the retailer.
+      </p>
+
+      <h2>Changes</h2>
+      <p>We may update these terms as the site evolves; the date above reflects the latest revision.</p>
+
+      <h2>Contact</h2>
+      <p>Questions? Reach us via the contact details on our <a href="/about">About page</a>.</p>
+    </article>
+  </div>
+</Base>

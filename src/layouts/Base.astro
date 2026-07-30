@@ -12,6 +12,12 @@ interface Props {
 const { title, description = SITE.description, type = 'website' } = Astro.props;
 const pageTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Optional: set these in Vercel env vars once you've created the
+// properties — the site works fine with neither set, so there's
+// no rush. See LAUNCH-TONIGHT.md for the 2-minute setup steps.
+const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined;
+const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION as string | undefined;
 ---
 <!doctype html>
 <html lang={SITE.locale}>
@@ -35,6 +41,18 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL('/og-image.png', Astro.site)} />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ff4d6d%22/></svg>" />
+    {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
+    {gaId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+        <script is:inline define:vars={{ gaId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId, { anonymize_ip: true });
+        </script>
+      </>
+    )}
   </head>
   <body>
     <header class="site-header">
@@ -72,7 +90,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           <a href="/calculator">Cost Calculator</a> ·
           <a href="/toolkit">Toolkit</a> ·
           <a href="/about">About</a> ·
-          <a href="/disclosure">Affiliate Disclosure</a>
+          <a href="/disclosure">Affiliate Disclosure</a> ·
+          <a href="/privacy">Privacy</a> ·
+          <a href="/terms">Terms</a>
         </div>
         <div>
           © {new Date().getFullYear()} {SITE.name}. As an affiliate partner we may earn from qualifying purchases.

@@ -1,0 +1,79 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site.config';
+---
+<Base title="Privacy Policy" description="What Japan Import Hub collects, why, and how you can control it.">
+  <div class="container">
+    <header class="article-header">
+      <h1>Privacy Policy</h1>
+      <p class="date">Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    </header>
+    <article class="prose">
+      <p>
+        {SITE.name} ("we", "us") respects your privacy. This page explains what information we
+        collect, why, and the choices you have. We collect as little as we reasonably can.
+      </p>
+
+      <h2>What we collect</h2>
+      <table>
+        <thead><tr><th>Data</th><th>When</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Email address</td>
+            <td>You subscribe to the newsletter, or create an account</td>
+            <td>To send import deal alerts, and to let you sign in without a password</td>
+          </tr>
+          <tr>
+            <td>Wishlist items you add</td>
+            <td>You use the account/wishlist feature</td>
+            <td>To show your own saved items back to you — nobody else can see them</td>
+          </tr>
+          <tr>
+            <td>Payment details</td>
+            <td>You buy the Import Toolkit</td>
+            <td>Processed entirely by Stripe — we never see or store your card number</td>
+          </tr>
+          <tr>
+            <td>Basic usage data (pages visited, approximate location, device type)</td>
+            <td>You browse the site</td>
+            <td>To understand which guides are useful and fix what isn't, via privacy-respecting analytics</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Affiliate links and cookies</h2>
+      <p>
+        This site earns commission through affiliate links to Play-Asia and CDJapan (see our
+        <a href="/disclosure">affiliate disclosure</a>). When you click one of these links, the
+        destination store may set its own cookie to track that the visit came from us — that
+        cookie and any data it collects is governed by that store's own privacy policy, not ours.
+      </p>
+
+      <h2>Where your data lives</h2>
+      <p>
+        Account emails, wishlist items, and newsletter subscriptions are stored with Supabase, our
+        database provider, protected so that each signed-in user can only ever access their own
+        rows. Payments are processed and stored by Stripe. We do not sell your data to anyone, ever.
+      </p>
+
+      <h2>Your choices</h2>
+      <ul>
+        <li><strong>Unsubscribe</strong> from the newsletter any time via the link in every email.</li>
+        <li><strong>Delete your account</strong> and wishlist by emailing us — we'll remove your data within a reasonable time.</li>
+        <li><strong>Block cookies</strong> in your browser at any time; the site's core guides work fine without them.</li>
+      </ul>
+
+      <h2>Children</h2>
+      <p>This site is not directed at children under 13, and we do not knowingly collect their data.</p>
+
+      <h2>Changes</h2>
+      <p>
+        If this policy changes meaningfully, we'll update the date at the top of this page. Continued
+        use of the site after a change means you accept the updated policy.
+      </p>
+
+      <h2>Contact</h2>
+      <p>Questions about your data? Reach us via the contact details on our <a href="/about">About page</a>.</p>
+    </article>
+  </div>
+</Base>
