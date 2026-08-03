@@ -1,17 +1,40 @@
-name: Daily article draft
+# ============================================================
+# EVERGREEN ARTICLE ENGINE — 1–3 evergreen posts per day, LIVE.
+#
+# Requires ONE repo secret: ANTHROPIC_API_KEY
+#   (repo → Settings → Secrets and variables → Actions)
+#
+# Design notes:
+# - Commits straight to main (no PR) → zero dependency on the
+#   "Allow Actions to create pull requests" repo setting, which is
+#   OFF by default and silently breaks PR-based bots.
+# - Push to main triggers the deploy workflow → articles go live
+#   and flow into /rss.xml → Buffer/social automatically.
+# - Build is verified BEFORE committing; a bad article can never
+#   break the live site.
+# ============================================================
+name: Daily evergreen articles
 
 on:
   schedule:
-    # 22:00 UTC = 05:00 Asia/Bangkok — a fresh draft waiting every morning
+    # 22:00 UTC = 05:00 Asia/Bangkok
     - cron: '0 22 * * *'
-  workflow_dispatch: {}   # allow manual runs from the Actions tab
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Articles to generate this run (1-3)'
+        default: '3'
+        required: false
 
 permissions:
   contents: write
-  pull-requests: write
+
+concurrency:
+  group: article-engine
+  cancel-in-progress: false
 
 jobs:
-  draft:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,27 +43,37 @@ jobs:
         with:
           node-version: 22
 
-      - name: Generate draft article with Claude
+      - name: Preflight — API key present?
+        run: |
+          if [ -z "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "::error::ANTHROPIC_API_KEY secret is MISSING. Fix: repo → Settings → Secrets and variables → Actions → New repository secret → Name: ANTHROPIC_API_KEY → Value: key from console.anthropic.com → re-run this workflow."
+            exit 1
+          fi
+          echo "API key present ✓"
+
+      - name: Generate evergreen articles
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ARTICLES_PER_RUN: ${{ github.event.inputs.count || '3' }}
+          AUTO_PUBLISH: 'true'
         run: node scripts/generate-article.mjs
 
-      - name: Verify site still builds
+      - name: Verify site still builds (protects production)
         run: |
           npm ci
           npm run build
 
-      - name: Open pull request for review
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: 'content: daily draft article'
-          title: '📝 Daily draft article — review before publish'
-          body: |
-            Auto-generated draft article (marked `draft: true`, so it is NOT live).
-
-            **To publish:**
-            1. Review the article content and fix anything off.
-            2. Change `draft: true` → `draft: false` in the frontmatter.
-            3. Merge this PR — the site redeploys automatically.
-          branch: auto/daily-article
-          delete-branch: true
+      - name: Commit & push to main (auto-deploys + RSS → social)
+        run: |
+          git config user.name "yaya-article-engine"
+          git config user.email "actions@github.com"
+          git add src/content/articles/
+          if git diff --cached --quiet; then
+            echo "No new articles to commit (topic pool may be exhausted)."
+            exit 0
+          fi
+          COUNT=$(git diff --cached --name-only | wc -l)
+          git commit -m "content: ${COUNT} evergreen article(s) — auto-generated $(date -u +%F)"
+          git push
+          echo "### 🌱 Published ${COUNT} evergreen article(s)" >> $GITHUB_STEP_SUMMARY
+          git diff HEAD~1 --name-only >> $GITHUB_STEP_SUMMARY
